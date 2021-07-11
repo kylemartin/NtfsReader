@@ -1009,7 +1009,10 @@ namespace System.IO.Filesystem.Ntfs
                             break;
 
                         case AttributeType.AttributeData:
-                            node.Size = residentAttribute->ValueLength;
+                            if (attribute->NameLength == 0)
+                            {
+                                node.Size = residentAttribute->ValueLength;
+                            }
                             break;
                     }
                 }
@@ -1018,7 +1021,7 @@ namespace System.IO.Filesystem.Ntfs
                     NonResidentAttribute* nonResidentAttribute = (NonResidentAttribute*)attribute;
 
                     //save the length (number of bytes) of the data.
-                    if (attribute->AttributeType == AttributeType.AttributeData && node.Size == 0)
+                    if (attribute->AttributeType == AttributeType.AttributeData && attribute->NameLength == 0 && node.Size == 0)
                         node.Size = nonResidentAttribute->DataSize;
 
                     if (streams != null)
@@ -1092,7 +1095,7 @@ namespace System.IO.Filesystem.Ntfs
             //    }
             //}
 
-            if (streams != null && streams.Count > 0)
+            if (streams != null && streams.Count > 0 && streams[0].Type == AttributeType.AttributeData && streams[0].NameIndex == 0)
                 node.Size = streams[0].Size;
         }
 
